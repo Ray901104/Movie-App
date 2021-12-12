@@ -7,19 +7,30 @@ import { Row } from "antd";
 function LandingPage() {
   const [Movies, setMovies] = useState([]);
   const [MainMovieImage, setMainMovieImage] = useState(null);
+  const [CurrentPage, setCurrentPage] = useState(0);
 
-  useEffect(() => {
-    const endPoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
-
-    fetch(endPoint)
+  const fetchMovies = (endpoint) => {
+    fetch(endpoint)
       .then((response) => response.json())
       .then((response) => {
         console.log(response);
-        setMovies([...response.results]);
-        // console.log(Movies);
+        setMovies([...Movies, ...response.results]);
         setMainMovieImage(response.results[0]);
+        setCurrentPage(response.page);
       });
+  };
+
+  useEffect(() => {
+    const endPoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
+    fetchMovies(endPoint);
   }, []);
+
+  const loadMoreItems = () => {
+    const endPoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=${
+      CurrentPage + 1
+    }`;
+    fetchMovies(endPoint);
+  };
 
   return (
     <div style={{ width: "100%", margin: "0" }}>
@@ -55,7 +66,7 @@ function LandingPage() {
         </Row>
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <button>더보기</button>
+        <button onClick={loadMoreItems}>더보기</button>
       </div>
     </div>
   );
